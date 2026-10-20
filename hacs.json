@@ -1,0 +1,6 @@
+{
+  "name": "Carte Linky Appareils",
+  "filename": "linky-appareils-card.js",
+  "render_readme": true,
+  "homeassistant": "2024.1.0"
+}

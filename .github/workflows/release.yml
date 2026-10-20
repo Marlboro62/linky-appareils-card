@@ -1,0 +1,54 @@
+name: Contrôle et release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  controle:
+    name: Contrôle de la carte
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntaxe JavaScript
+        run: node --check linky-appareils-card.js
+      - name: Version du fichier
+        run: |
+          v=$(grep -oP 'CARD_VERSION = "\K[^"]+' linky-appareils-card.js)
+          echo "Version de la carte : $v"
+          if [[ "$GITHUB_REF" == refs/tags/v* && "v$v" != "$GITHUB_REF_NAME" ]]; then
+            echo "::error::Le tag $GITHUB_REF_NAME ne correspond pas à CARD_VERSION ($v)"
+            exit 1
+          fi
+
+  hacs:
+    name: Validation HACS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: hacs/action@main
+        with:
+          category: plugin
+          ignore: brands topics
+
+  release:
+    name: Publication de la release
+    needs: controle
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Release avec le fichier de la carte
+        uses: softprops/action-gh-release@v2
+        with:
+          files: linky-appareils-card.js
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}

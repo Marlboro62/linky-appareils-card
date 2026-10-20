@@ -1,0 +1,57 @@
+# Carte Linky Appareils : exemple de configuration complète.
+# Remplacez les entités par les vôtres. Sans « circuits: » ni « devices: »,
+# la carte détecte seule les capteurs sensor.cout_<nom>_jour / _mois / _cycle.
+type: custom:linky-appareils-card
+title: Coûts par appareil
+period: mois
+theme: v2
+show_split: true
+show_zero: false
+
+# En-tête et tuiles
+tarif: sensor.lixee_current_price
+price: sensor.tempo_tarif_ttc_actuel
+power: sensor.lixee_sinsts
+cost_day: sensor.tempo_cout_total_aujourd_hui
+cost_month: sensor.tempo_cout_total_ce_mois
+cost_cycle: sensor.tempo_cout_total_cycle_en_cours
+energy_day: sensor.tempo_cout_energie_aujourd_hui
+energy_month: sensor.tempo_cout_energie_ce_mois
+energy_cycle: sensor.tempo_cout_energie_cycle_en_cours
+kwh_prefix: sensor.tempo_
+
+# Départs du tableau électrique
+circuits:
+  - name: Cumulus
+    icon: mdi:water-boiler
+    jour: sensor.cout_disjoncteur_cumulus_jour
+    mois: sensor.cout_disjoncteur_cumulus_mois
+    cycle: sensor.cout_disjoncteur_cumulus_cycle
+    power: sensor.disjoncteur_cumulus_power
+  - name: Prises 1
+    icon: mdi:power-socket-fr
+    jour: sensor.cout_disjoncteur_prises_1_jour
+    mois: sensor.cout_disjoncteur_prises_1_mois
+    cycle: sensor.cout_disjoncteur_prises_1_cycle
+    power: sensor.disjoncteur_prises_1_power
+  - name: Éclairage
+    icon: mdi:lightbulb-group
+    jour: sensor.cout_disjoncteur_light_1_jour
+    mois: sensor.cout_disjoncteur_light_1_mois
+    cycle: sensor.cout_disjoncteur_light_1_cycle
+    power: sensor.disjoncteur_light_1_power
+
+# Appareils sur prises connectées
+devices:
+  - name: Sèche-linge
+    icon: mdi:tumble-dryer
+    jour: sensor.cout_seche_linge_jour
+    mois: sensor.cout_seche_linge_mois
+    cycle: sensor.cout_seche_linge_cycle
+    power: sensor.seche_linge_power
+  - name: Machine à laver
+    icon: mdi:washing-machine
+    jour: sensor.cout_machine_laver_jour
+    mois: sensor.cout_machine_laver_mois
+    cycle: sensor.cout_machine_laver_cycle
+    power: sensor.machine_laver_power
