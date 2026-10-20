@@ -25,7 +25,8 @@ jobs:
         run: |
           v=$(grep -oP 'CARD_VERSION = "\K[^"]+' linky-appareils-card.js)
           echo "Version de la carte : $v"
-          if [[ "$GITHUB_REF" == refs/tags/v* && "v$v" != "$GITHUB_REF_NAME" ]]; then
+          tag="${GITHUB_REF_NAME%%-*}"   # v0.1.0-beta -> v0.1.0
+          if [[ "$GITHUB_REF" == refs/tags/v* && "v$v" != "$tag" ]]; then
             echo "::error::Le tag $GITHUB_REF_NAME ne correspond pas à CARD_VERSION ($v)"
             exit 1
           fi
