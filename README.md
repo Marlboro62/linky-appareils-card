@@ -4,6 +4,8 @@ Carte Lovelace pour Home Assistant qui affiche **ce que coûte chaque circuit et
 
 Elle a le même style que la [Carte Enedis Linky New](https://github.com/Marlboro62/content-card-linky-new), mais elle est **indépendante** : elle s'installe à part, avec son propre type `custom:linky-appareils-card`, et ne remplace pas la carte Linky. Les deux peuvent être affichées sur le même tableau de bord.
 
+🎮 **[Essayer la démo en ligne](https://marlboro62.github.io/linky-appareils-card/docs/demo.html)** : la vraie carte avec des données simulées, sans installer Home Assistant.
+
 | Style MyElectricalData (sombre) | Clair |
 | --- | --- |
 | ![Aperçu sombre](images/apercu-sombre.png) | ![Aperçu clair](images/apercu-clair.png) |
