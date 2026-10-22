@@ -349,8 +349,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .brand .bolt { fill: var(--med-blue); }
 .title { font-size: 1.15rem; font-weight: 700; letter-spacing: .2px; }
 .sub { font-size: .78rem; color: var(--med-muted); }
-.tempo { display: flex; gap: 8px; }
-.pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+.tempo { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; white-space: nowrap;
   background: var(--med-surface); border: 1px solid var(--med-line); font-size: .78rem; }
 .pill-l { color: var(--med-muted); }
 .pill-v { font-weight: 600; }
