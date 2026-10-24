@@ -33,7 +33,7 @@ Elle a le même style que la [Carte Enedis Linky New](https://github.com/Marlbor
 
 ### Manuellement
 
-1. Téléchargez `linky-appareils-card.js` depuis la [dernière release](https://github.com/Marlboro62/linky-appareils-card/releases/latest) et copiez-le dans `/config/www/`.
+1. Téléchargez [`linky-appareils-card.js`](https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/linky-appareils-card.js) (clic droit → Enregistrer sous) et copiez-le dans `/config/www/`.
 2. **Paramètres → Tableaux de bord → ⋮ → Ressources → Ajouter une ressource** :
    - URL : `/local/linky-appareils-card.js`
    - Type : **Module JavaScript**
