@@ -6,9 +6,9 @@ Elle a le même style que la [Carte Enedis Linky New](https://github.com/Marlbor
 
 🎮 **[Essayer la démo en ligne](https://marlboro62.github.io/linky-appareils-card/docs/demo.html)** : la vraie carte avec des données simulées, sans installer Home Assistant.
 
-| Style MyElectricalData (sombre) | Clair |
-| --- | --- |
-| ![Aperçu sombre](images/apercu-sombre.png) | ![Aperçu clair](images/apercu-clair.png) |
+| Style MyElectricalData (sombre) | Clair | Appareils rangés dans leur circuit |
+| --- | --- | --- |
+| ![Aperçu sombre](images/apercu-sombre.png) | ![Aperçu clair](images/apercu-clair.png) | ![Imbriqués](images/imbriques.png) |
 
 ## Ce que la carte affiche
 
@@ -19,6 +19,7 @@ Elle a le même style que la [Carte Enedis Linky New](https://github.com/Marlbor
   - **Circuits** : les départs du tableau électrique, avec la part que les circuits ne mesurent pas ;
   - **Appareils** : prises connectées et appareils suivis.
 - Chaque ligne donne la puissance actuelle (en vert quand l'appareil consomme), le coût de la période et une barre comparative. Un clic ouvre le capteur.
+- **Imbrication** : un circuit peut contenir ses appareils, et un appareil d'autres appareils (une multiprise, par exemple), sur autant de niveaux que voulu. Un chevron plie ou déplie chaque groupe ; la carte retient votre choix sur cet appareil. Sous un groupe déplié, les barres sont à l'échelle du groupe et une ligne « Autres (non mesuré) » donne ce que ses enfants ne mesurent pas.
 - Les appareils à 0 € sont regroupés sur une seule ligne (option `show_zero` pour les afficher).
 
 > Les appareils sont en général déjà comptés dans leur circuit : il ne faut pas additionner les deux listes.
@@ -84,6 +85,7 @@ Une option dont le capteur n'existe pas est simplement masquée.
 | `period` | Onglet ouvert au chargement : `jour`, `mois` ou `cycle` | `mois` |
 | `show_split` | Afficher l'énergie du mois par poste Tempo | `true` |
 | `show_zero` | Afficher les appareils à 0 € au lieu de les regrouper | `false` |
+| `expanded` | Groupes (éléments qui contiennent d'autres éléments) dépliés à l'ouverture | `false` |
 | `theme` | `v2` (bleu nuit MyElectricalData), `auto` (clair ou sombre selon HA), `ha` (thème Home Assistant) | `v2` |
 
 Toutes les options sont aussi disponibles dans l'**éditeur visuel**.
@@ -108,6 +110,33 @@ Chaque élément de `circuits:` ou `devices:` accepte :
 | `mois` (ou `month`) | Capteur de coût du mois |
 | `cycle` | Capteur de coût du cycle |
 | `power` | Capteur de puissance en W (facultatif) |
+| `devices` (ou `children`) | Liste d'éléments rangés dans celui-ci, avec les mêmes clés (facultatif) |
+| `expanded` | Déplier ce groupe à l'ouverture, quelle que soit l'option de la carte (facultatif) |
+
+### Circuits et appareils imbriqués
+
+Placez les appareils sous leur circuit avec `devices:`. Un groupe peut aussi n'avoir aucun capteur : son coût est alors la somme de ses enfants (pratique pour une multiprise ou une pièce).
+
+```yaml
+circuits:
+  - name: Prises salon
+    icon: mdi:power-socket-fr
+    mois: sensor.cout_disjoncteur_prises_salon_mois
+    expanded: true
+    devices:
+      - name: Télévision
+        icon: mdi:television
+        mois: sensor.cout_television_mois
+      - name: Multiprise bureau
+        icon: mdi:power-socket-eu
+        devices:
+          - name: Ordinateur
+            mois: sensor.cout_ordinateur_mois
+          - name: Box internet
+            mois: sensor.cout_box_internet_mois
+```
+
+L'état plié ou déplié de chaque groupe est retenu par le navigateur ; `expanded` ne sert qu'à la première ouverture.
 
 ## Support
 

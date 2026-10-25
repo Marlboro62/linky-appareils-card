@@ -7,6 +7,7 @@ period: mois
 theme: v2
 show_split: true
 show_zero: false
+expanded: false
 
 # En-tête et tuiles
 tarif: sensor.lixee_current_price
@@ -40,18 +41,23 @@ circuits:
     mois: sensor.cout_disjoncteur_light_1_mois
     cycle: sensor.cout_disjoncteur_light_1_cycle
     power: sensor.disjoncteur_light_1_power
-
-# Appareils sur prises connectées
-devices:
-  - name: Sèche-linge
-    icon: mdi:tumble-dryer
-    jour: sensor.cout_seche_linge_jour
-    mois: sensor.cout_seche_linge_mois
-    cycle: sensor.cout_seche_linge_cycle
-    power: sensor.seche_linge_power
-  - name: Machine à laver
+  # Circuit qui contient ses appareils (plier/déplier avec le chevron)
+  - name: Lave-linge
     icon: mdi:washing-machine
-    jour: sensor.cout_machine_laver_jour
-    mois: sensor.cout_machine_laver_mois
-    cycle: sensor.cout_machine_laver_cycle
-    power: sensor.machine_laver_power
+    jour: sensor.cout_disjoncteur_lave_linge_jour
+    mois: sensor.cout_disjoncteur_lave_linge_mois
+    cycle: sensor.cout_disjoncteur_lave_linge_cycle
+    expanded: true
+    devices:
+      - name: Sèche-linge
+        icon: mdi:tumble-dryer
+        jour: sensor.cout_seche_linge_jour
+        mois: sensor.cout_seche_linge_mois
+        cycle: sensor.cout_seche_linge_cycle
+        power: sensor.seche_linge_power
+      - name: Machine à laver
+        icon: mdi:washing-machine
+        jour: sensor.cout_machine_laver_jour
+        mois: sensor.cout_machine_laver_mois
+        cycle: sensor.cout_machine_laver_cycle
+        power: sensor.machine_laver_power

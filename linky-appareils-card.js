@@ -4,10 +4,13 @@
  * elle s'installe comme une ressource à part et ne remplace pas la carte Linky.
  *
  *   type: custom:linky-appareils-card
+ *
+ * Un circuit (ou un appareil) peut contenir ses propres appareils (devices:), sur plusieurs niveaux :
+ * ils s'affichent en dessous, avec une flèche pour plier ou déplier le groupe.
  */
 
 (() => {
-const CARD_VERSION = "0.1.1";
+const CARD_VERSION = "0.2.0";
 
 /* ------------------------------------------------------------- affichage */
 
@@ -42,6 +45,20 @@ const themeClass = (theme, hass) => {
   return "th-v2";
 };
 
+/** Groupes pliés ou dépliés, retenus sur l'appareil : facultatif, jamais bloquant. */
+const store = {
+  get(key) {
+    try { return JSON.parse(window.localStorage.getItem(key) || "null"); } catch (e) { return null; }
+  },
+  set(key, value) {
+    try { window.localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* stockage indisponible */ }
+  },
+};
+
+/** Appareils rangés sous un circuit ou un appareil (devices:, ou children:). */
+const kidsOf = (d) => (Array.isArray(d?.devices) ? d.devices : Array.isArray(d?.children) ? d.children : []);
+const flatten = (list) => list.flatMap((d) => [d, ...flatten(kidsOf(d))]);
+
 /* ------------------------------------------------- carte coûts par appareil */
 
 const DEV_DEFAULTS = {
@@ -59,6 +76,7 @@ const DEV_DEFAULTS = {
   kwh_prefix: "sensor.tempo_",
   show_zero: false,
   show_split: true,
+  expanded: false,
   theme: "v2",
 };
 
@@ -121,9 +139,19 @@ class LinkyAppareilsCard extends HTMLElement {
     this._config = { ...DEV_DEFAULTS, ...(config || {}) };
     if (!this._tab) this._tab = DEV_PERIODS.some((p) => p.key === this._config.period) ? this._config.period : "mois";
     this._sig = null;
+    this._openKey = `linky-appareils-card:${this._config.title}`;
+    this._open = store.get(this._openKey) || {};
     if (!this.shadowRoot) {
       this.attachShadow({ mode: "open" });
       this.shadowRoot.addEventListener("click", (ev) => {
+        const tg = ev.target.closest?.("[data-toggle]");
+        if (tg) {
+          const k = tg.dataset.toggle;
+          this._open = { ...this._open, [k]: tg.getAttribute("aria-expanded") !== "true" };
+          store.set(this._openKey, this._open);
+          this._render(true);
+          return;
+        }
         const tab = ev.target.closest?.("[data-tab]");
         if (tab) {
           this._tab = tab.dataset.tab;
@@ -175,14 +203,14 @@ class LinkyAppareilsCard extends HTMLElement {
     const lists = this._lists();
     const period = DEV_PERIODS.find((p) => p.key === this._tab) || DEV_PERIODS[1];
     const pick = (d, p) => d[p.key] || d[p.alt];
-    const all = [...lists.circuits, ...lists.devices];
+    const all = flatten([...lists.circuits, ...lists.devices]);
     const ids = [
       c.tarif, c.price, c.power,
       ...DEV_PERIODS.flatMap((p) => [c[p.total], c[p.energy]]),
       ...(c.show_split !== false ? DEV_POSTES.map((p) => `${c.kwh_prefix}${p.k}_energie_ce_mois`) : []),
       ...all.flatMap((d) => [pick(d, period), d.power]),
     ];
-    const sig = `${c.theme}|${this._hass.themes?.darkMode}|${this._tab}|` + ids.map((id) => this._state(id)?.last_updated || "-").join("|");
+    const sig = `${c.theme}|${this._hass.themes?.darkMode}|${this._tab}|${JSON.stringify(this._open)}|` + ids.map((id) => this._state(id)?.last_updated || "-").join("|");
     if (!force && sig === this._sig) return;
     this._sig = sig;
 
@@ -235,35 +263,67 @@ class LinkyAppareilsCard extends HTMLElement {
     // Classements
     const showZero = c.show_zero === true;
     const energy = this._num(c[period.energy]);
-    const section = (title, list, rest) => {
-      const rows = list
-        .map((d) => ({ d, id: pick(d, period), v: this._num(pick(d, period)) }))
-        .filter((r) => r.id && this._state(r.id));
-      if (!rows.length) return "";
+    // Groupe déplié : choix fait dans la carte, sinon expanded: de l'élément, sinon de la carte
+    const isOpen = (r) => (this._open[r.key] ?? r.d.expanded ?? c.expanded) === true;
+    // Lignes d'une liste, avec leurs sous-appareils (le coût d'un groupe sans capteur = somme de ses appareils)
+    const build = (list, path) => list.map((d, i) => {
+      // Clé stable par nom (ou capteur) : réordonner la config ne mélange pas les groupes pliés
+      const key = `${path}${d.name || d.jour || d.day || d.mois || d.month || i}`;
+      const ch = build(kidsOf(d), `${key}/`);
+      const id = pick(d, period);
+      let v = this._num(id);
+      if ((!id || !this._state(id)) && ch.length) v = ch.reduce((a, x) => a + (x.v || 0), 0);
+      return { d, id: id && this._state(id) ? id : null, v, key, ch };
+    }).filter((r) => r.id || r.ch.length);
+    const line = (r, depth, max, tree) => {
+      const pst = this._state(r.d.power);
+      const pv = pst && Number.isFinite(Number(pst.state)) ? Number(pst.state) : null;
+      const open = isOpen(r);
+      const tg = r.ch.length
+        ? `<button class="dv-tg${open ? " open" : ""}" data-toggle="${esc(r.key)}" aria-expanded="${open}" aria-label="${open ? "Plier" : "Déplier"} ${esc(r.d.name || "")}"><ha-icon icon="mdi:chevron-right"></ha-icon></button>`
+        : tree ? `<span class="dv-tg sp"></span>` : "";
+      const n = r.ch.length ? `<span class="dv-k">${r.ch.length}</span>` : "";
+      return `<div class="dv-row${depth ? " sub" : ""}" style="--dv-d:${depth}"${r.id ? ` data-entity="${esc(r.id)}"` : ""}>
+        ${tg}<ha-icon icon="${esc(r.d.icon || "mdi:flash")}"></ha-icon>
+        <div class="dv-main">
+          <div class="dv-top"><span class="dv-n">${esc(r.d.name || r.id || "")}</span>${n}${pv !== null ? `<span class="dv-p${pv > 0 ? " on" : ""}">${fmt(pv, pv < 10 && pv % 1 ? 1 : 0)} W</span>` : ""}<span class="dv-v">${euroSmall(r.v)}</span></div>
+          <div class="dv-bar"><i style="width:${Math.max(0, Math.min(100, ((r.v || 0) / max) * 100))}%"></i></div>
+        </div>
+      </div>`;
+    };
+    // Une liste : triée, appareils à 0 € regroupés ; un groupe déplié montre ses appareils (barres en part du groupe)
+    const rowsHtml = (rows, depth, max) => {
       rows.sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
       const visible = showZero ? rows : rows.filter((r) => r.v);
       const hidden = rows.length - visible.length;
-      const max = Math.max(...visible.map((r) => r.v || 0), 1e-9);
-      const sum = visible.reduce((a, r) => a + (r.v || 0), 0);
-      const line = (name, icon, v, id, powerId, cls = "") => {
-        const pst = this._state(powerId);
-        const pv = pst && Number.isFinite(Number(pst.state)) ? Number(pst.state) : null;
-        return `<div class="dv-row ${cls}"${id ? ` data-entity="${esc(id)}"` : ""}>
-          <ha-icon icon="${esc(icon || "mdi:flash")}"></ha-icon>
-          <div class="dv-main">
-            <div class="dv-top"><span class="dv-n">${esc(name)}</span>${pv !== null ? `<span class="dv-p${pv > 0 ? " on" : ""}">${fmt(pv, pv < 10 && pv % 1 ? 1 : 0)} W</span>` : ""}<span class="dv-v">${euroSmall(v)}</span></div>
-            <div class="dv-bar"><i style="width:${Math.max(0, ((v || 0) / max) * 100)}%"></i></div>
-          </div>
-        </div>`;
-      };
+      const top = max ?? Math.max(...visible.map((r) => r.v || 0), 1e-9);
+      const tree = rows.some((r) => r.ch.length) || depth > 0;
+      return visible.map((r) => {
+        let out = line(r, depth, top, tree);
+        if (r.ch.length && isOpen(r)) {
+          const known = r.ch.reduce((a, x) => a + (x.v || 0), 0);
+          const scale = Math.max(r.v || 0, known, 1e-9);
+          out += `<div class="dv-kids">${rowsHtml(r.ch, depth + 1, scale)}`;
+          const other = (r.v || 0) - known;
+          if (r.id && other > 0.005) out += `<div class="dv-rest" style="--dv-d:${depth + 1}" title="Coût du groupe moins la somme de ses appareils">Autres (non mesuré) : <b>${euroSmall(other)}</b> (${fmt((other / scale) * 100, 0)} %)</div>`;
+          out += `</div>`;
+        }
+        return out;
+      }).join("") + (hidden ? `<div class="dv-zero" style="--dv-d:${depth}">+ ${hidden} à 0 € sur la période</div>` : "");
+    };
+    const section = (title, list, rest) => {
+      const rows = build(list, `${title}:`);
+      if (!rows.length) return "";
+      const sum = rows.reduce((a, r) => a + (r.v || 0), 0);
       return `<div class="dv-sec">
         <div class="chart-h"><span>${title}</span><span>${euroSmall(sum)}</span></div>
-        ${visible.map((r) => line(r.d.name || r.id, r.d.icon, r.v, r.id, r.d.power)).join("")}
+        ${rowsHtml(rows, 0)}
         ${rest > 0.005 ? `<div class="dv-rest" title="Coût énergie de la période moins la somme des circuits">Non mesuré par les circuits : <b>${euroSmall(rest)}</b>${energy > 0 ? ` (${fmt((rest / energy) * 100, 0)} %)` : ""}</div>` : ""}
-        ${hidden ? `<div class="dv-zero">+ ${hidden} à 0 € sur la période</div>` : ""}
       </div>`;
     };
-    const circuitSum = lists.circuits.reduce((a, d) => a + (this._num(pick(d, period)) || 0), 0);
+    // Un circuit sans capteur qui ne fait que regrouper des appareils compte pour la somme de ses enfants
+    const costOf = (d) => { const id = pick(d, period); return id && this._state(id) ? this._num(id) || 0 : kidsOf(d).reduce((a, x) => a + costOf(x), 0); };
+    const circuitSum = lists.circuits.reduce((a, d) => a + costOf(d), 0);
     const rest = energy !== null && lists.circuits.length ? energy - circuitSum : 0;
     const secs = section("Circuits", lists.circuits, rest) + section("Appareils", lists.devices, 0);
 
@@ -321,6 +381,19 @@ const DEV_STYLE = `<style>
 .dv-v { font-weight: 700; min-width: 64px; text-align: right; }
 .dv-bar { height: 5px; border-radius: 4px; background: var(--med-line); margin-top: 4px; overflow: hidden; }
 .dv-bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--med-blue), var(--med-green)); }
+.dv-row.sub { padding-left: 10px; }
+.dv-row.sub ha-icon { --mdc-icon-size: 18px; }
+.dv-row.sub .dv-top { font-size: .82rem; }
+.dv-row.sub .dv-bar { height: 4px; }
+.dv-row.sub .dv-bar i { background: linear-gradient(90deg, var(--med-blue), color-mix(in srgb, var(--med-blue) 45%, var(--med-green))); }
+.dv-tg { all: unset; flex: none; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; cursor: pointer; margin-right: -4px; }
+.dv-tg:hover { background: var(--med-line); }
+.dv-tg:focus-visible { outline: 2px solid var(--med-blue); }
+.dv-tg ha-icon { --mdc-icon-size: 18px !important; color: var(--med-muted); transition: transform .15s; }
+.dv-tg.open ha-icon { transform: rotate(90deg); }
+.dv-tg.sp { cursor: default; } .dv-tg.sp:hover { background: none; }
+.dv-k { font-size: .68rem; color: var(--med-muted); border: 1px solid var(--med-line); border-radius: 999px; padding: 0 6px; }
+.dv-kids { border-left: 1px dashed var(--med-line); margin-left: 15px; }
 .dv-rest { font-size: .76rem; color: var(--med-muted); padding: 4px 4px 0 34px; }
 .dv-rest b { color: var(--med-text); }
 .dv-zero { font-size: .74rem; color: var(--med-muted); padding: 2px 4px 0 34px; }
@@ -532,6 +605,7 @@ const DEV_SCHEMA = [
   { name: "show_split", selector: { boolean: {} } },
   { name: "kwh_prefix", selector: { text: {} } },
   { name: "show_zero", selector: { boolean: {} } },
+  { name: "expanded", selector: { boolean: {} } },
   THEME_SELECT,
 ];
 const DEV_LABELS = {
@@ -549,6 +623,7 @@ const DEV_LABELS = {
   show_split: "Afficher l'énergie du mois par poste Tempo",
   kwh_prefix: "Préfixe des capteurs <couleur>_<hc|hp>_energie_ce_mois",
   show_zero: "Afficher les appareils à 0 €",
+  expanded: "Groupes dépliés à l'ouverture (circuits contenant des appareils)",
   theme: "Couleurs de la carte",
 };
 const LinkyAppareilsCardEditor = makeEditor(DEV_SCHEMA, DEV_LABELS, DEV_DEFAULTS);

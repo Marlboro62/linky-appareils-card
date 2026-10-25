@@ -102,7 +102,7 @@
       <div class="ctl"><div class="ctl-l">Période à l'ouverture (<code>period</code>)</div><div class="seg" data-key="period">
         <button data-v="jour">Jour</button><button data-v="mois">Mois</button><button data-v="cycle">Cycle</button></div></div>
       <div class="ctl"><div class="ctl-l">Liste des appareils</div><div class="seg" data-key="mode">
-        <button data-v="list">Listés dans la config</button><button data-v="auto">Détection automatique</button></div></div>
+        <button data-v="list">Listés dans la config</button><button data-v="nested">Rangés dans les circuits</button><button data-v="auto">Détection automatique</button></div></div>
       <div class="ctl"><div class="ctl-l">Appareils à 0 € (<code>show_zero</code>)</div><div class="seg" data-key="zero">
         <button data-v="off">Regroupés</button><button data-v="on">Affichés</button></div></div>
       <div class="ctl"><div class="ctl-l">Énergie du mois par poste (<code>show_split</code>)</div><div class="seg" data-key="split">
@@ -148,7 +148,7 @@
     { slug: "disjoncteur_cumulus", name: "Cumulus", icon: "mdi:water-boiler", day: 0.55, w: 0 },
     { slug: "disjoncteur_prises_cuisine", name: "Prises cuisine", icon: "mdi:power-socket-fr", day: 0.42, w: 180 },
     { slug: "disjoncteur_prises_salon", name: "Prises salon", icon: "mdi:power-socket-fr", day: 0.31, w: 96 },
-    { slug: "disjoncteur_lave_linge", name: "Lave-linge", icon: "mdi:washing-machine", day: 0.12, w: 0 },
+    { slug: "disjoncteur_lave_linge", name: "Lave-linge", icon: "mdi:washing-machine", day: 0.30, w: 0 },
     { slug: "disjoncteur_eclairage", name: "Éclairage", icon: "mdi:lightbulb-group", day: 0.08, w: 38 },
   ];
   const DEVICES = [
@@ -214,6 +214,21 @@
       const item = (d) => ({ name: d.name, icon: d.icon, jour: `sensor.cout_${d.slug}_jour`, mois: `sensor.cout_${d.slug}_mois`, cycle: `sensor.cout_${d.slug}_cycle`, power: `sensor.${d.slug}_power` });
       c.circuits = CIRCUITS.map(item);
       c.devices = DEVICES.map(item);
+    } else if (state.mode === "nested") {
+      // Appareils rangés sous leur circuit, sur deux niveaux (la multiprise du salon contient la box et l'ordinateur)
+      const item = (d) => ({ name: d.name, icon: d.icon, jour: `sensor.cout_${d.slug}_jour`, mois: `sensor.cout_${d.slug}_mois`, cycle: `sensor.cout_${d.slug}_cycle`, power: `sensor.${d.slug}_power` });
+      const dev = (slug) => item(DEVICES.find((d) => d.slug === slug));
+      const circ = (slug) => item(CIRCUITS.find((d) => d.slug === slug));
+      c.circuits = [
+        circ("disjoncteur_cumulus"),
+        { ...circ("disjoncteur_prises_cuisine"), devices: [dev("refrigerateur")] },
+        { ...circ("disjoncteur_prises_salon"), expanded: true, devices: [
+          dev("television"),
+          { name: "Multiprise bureau", icon: "mdi:power-socket-eu", devices: [dev("box_internet"), dev("ordinateur"), dev("imprimante")] },
+        ] },
+        { ...circ("disjoncteur_lave_linge"), devices: [dev("lave_linge"), dev("seche_linge")] },
+        { ...circ("disjoncteur_eclairage"), devices: [dev("ampoule_terrasse")] },
+      ];
     }
     return c;
   }
