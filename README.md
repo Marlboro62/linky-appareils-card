@@ -1,3 +1,31 @@
+<p>
+  ☕ <strong>Si cette carte vous est utile, vous pouvez soutenir le projet :</strong>
+</p>
+
+<div style="white-space: nowrap; line-height: 0;">
+  <a
+    href="https://www.buymeacoffee.com/Marlboro62"
+    target="_blank"
+    rel="noopener noreferrer"
+    style="display: inline-block; text-decoration: none; vertical-align: middle;"
+  ><img
+    src="https://img.buymeacoffee.com/button-api/?text=Offrir%20un%20caf%C3%A9&emoji=%E2%98%95&slug=Marlboro62&button_colour=FF5F5F&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00"
+    alt="Offrir un café sur Buy Me a Coffee"
+    height="45"
+    style="display: block; border: 0;"
+  ></a>&nbsp;&nbsp;<a
+    href="https://ko-fi.com/M4M2QL45X"
+    target="_blank"
+    rel="noopener noreferrer"
+    style="display: inline-block; text-decoration: none; vertical-align: middle;"
+  ><img
+    src="https://storage.ko-fi.com/cdn/kofi6.png?v=6"
+    alt="Soutenir le projet sur Ko-fi"
+    height="45"
+    style="display: block; border: 0;"
+  ></a>
+</div>
+
 # Carte Linky Appareils
 
 Carte Lovelace pour Home Assistant qui affiche **ce que coûte chaque circuit et chaque appareil** : aujourd'hui, ce mois et sur le cycle de facturation, avec le poste Tempo en cours, le prix du kWh et la puissance instantanée.
@@ -146,8 +174,6 @@ Questions et problèmes : uniquement via les [issues GitHub](https://github.com/
 
 - [Carte Enedis Linky New](https://github.com/Marlboro62/content-card-linky-new) : consommation et production Linky via MyElectricalData.
 - [Add-on MyElectricalData new](https://github.com/Marlboro62/hassio-addons) pour Home Assistant.
-
-Si la carte vous est utile : [Buy Me a Coffee](https://buymeacoffee.com/marlboro62) · [Ko-fi](https://ko-fi.com/nothing_one)
 
 ## Licence
 
