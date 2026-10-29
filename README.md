@@ -36,7 +36,7 @@ Elle a le même style que la [Carte Enedis Linky New](https://github.com/Marlbor
 
 | Style MyElectricalData (sombre) | Clair | Appareils rangés dans leur circuit |
 | --- | --- | --- |
-| ![Aperçu sombre](images/apercu-sombre.png) | ![Aperçu clair](images/apercu-clair.png) | ![Imbriqués](images/imbriques.png) |
+| ![Aperçu sombre](https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/apercu-sombre.png) | ![Aperçu clair](https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/apercu-clair.png) | ![Imbriqués](https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/imbriques.png) |
 
 ## Ce que la carte affiche
 
@@ -126,7 +126,7 @@ Configuration minimale, avec la détection automatique :
 type: custom:linky-appareils-card
 ```
 
-Configuration complète avec listes explicites : voir [`exemples/carte-appareils.yaml`](exemples/carte-appareils.yaml).
+Configuration complète avec listes explicites : voir [`exemples/carte-appareils.yaml`](https://github.com/Marlboro62/linky-appareils-card/blob/main/exemples/carte-appareils.yaml).
 
 Chaque élément de `circuits:` ou `devices:` accepte :
 
