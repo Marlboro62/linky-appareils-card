@@ -114,7 +114,7 @@ Une option dont le capteur n'existe pas est simplement masquée.
 | `show_split` | Afficher l'énergie du mois par poste Tempo | `true` |
 | `show_zero` | Afficher les appareils à 0 € au lieu de les regrouper | `false` |
 | `expanded` | Groupes (éléments qui contiennent d'autres éléments) dépliés à l'ouverture | `false` |
-| `theme` | `v2` (bleu nuit MyElectricalData), `auto` (clair ou sombre selon HA), `ha` (thème Home Assistant) | `v2` |
+| `theme` | `v2` (bleu nuit MyElectricalData), `auto` (clair ou sombre selon HA), `ha` (thème Home Assistant : fond, textes, bordures et couleur de sélection suivent le thème, par exemple l'onglet actif prend la `primary-color`) | `v2` |
 
 Toutes les options sont aussi disponibles dans l'**éditeur visuel**.
 

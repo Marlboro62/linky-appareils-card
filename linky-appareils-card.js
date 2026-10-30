@@ -10,7 +10,7 @@
  */
 
 (() => {
-const CARD_VERSION = "0.2.1";
+const CARD_VERSION = "0.2.2-beta.1";
 
 /* ------------------------------------------------------------- affichage */
 
@@ -351,7 +351,7 @@ class LinkyAppareilsCard extends HTMLElement {
 const DEV_STYLE = `<style>
 .dv-tiles { grid-template-columns: repeat(3, 1fr) !important; }
 .dv-tiles .tile { cursor: pointer; }
-.dv-tiles .tile.sel { border-color: var(--med-blue); background: var(--med-surface); }
+.dv-tiles .tile.sel { border-color: var(--med-accent, var(--med-blue)); background: var(--med-surface); }
 .dv-tiles .tile-v { font-size: 1.2rem; }
 .split.dv { margin: 12px 12px 0; }
 .split.dv .chart-h { margin: 0 2px 6px; }
@@ -367,7 +367,7 @@ const DEV_STYLE = `<style>
 .dv-leg .s-red.s-HC { background: #f39a9a; } .dv-leg .s-red.s-HP { background: var(--t-red); }
 .dv-tabs { display: flex; gap: 4px; margin: 14px 12px 0; padding: 3px; border-radius: 10px; background: var(--med-surface); border: 1px solid var(--med-line); }
 .dv-tabs button { flex: 1; border: 0; background: none; color: var(--med-muted); font: inherit; font-size: .8rem; padding: 6px 0; border-radius: 8px; cursor: pointer; }
-.dv-tabs button.on { background: var(--med-blue); color: #fff; font-weight: 600; }
+.dv-tabs button.on { background: var(--med-accent, var(--med-blue)); color: var(--med-on-accent, #fff); font-weight: 600; }
 .dv-sec { margin: 12px 12px 0; }
 .dv-sec .chart-h { margin: 0 2px 4px; }
 .dv-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px; border-radius: 10px; cursor: pointer; }
@@ -388,7 +388,7 @@ const DEV_STYLE = `<style>
 .dv-row.sub .dv-bar i { background: linear-gradient(90deg, var(--med-blue), color-mix(in srgb, var(--med-blue) 45%, var(--med-green))); }
 .dv-tg { all: unset; flex: none; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; cursor: pointer; margin-right: -4px; }
 .dv-tg:hover { background: var(--med-line); }
-.dv-tg:focus-visible { outline: 2px solid var(--med-blue); }
+.dv-tg:focus-visible { outline: 2px solid var(--med-accent, var(--med-blue)); }
 .dv-tg ha-icon { --mdc-icon-size: 18px !important; color: var(--med-muted); transition: transform .15s; }
 .dv-tg.open ha-icon { transform: rotate(90deg); }
 .dv-tg.sp { cursor: default; } .dv-tg.sp:hover { background: none; }
@@ -397,7 +397,7 @@ const DEV_STYLE = `<style>
 .dv-rest { font-size: .76rem; color: var(--med-muted); padding: 4px 4px 0 34px; }
 .dv-rest b { color: var(--med-text); }
 .dv-zero { font-size: .74rem; color: var(--med-muted); padding: 2px 4px 0 34px; }
-ha-card.light .dv-tabs button.on { background: var(--med-blue); }
+ha-card.light .dv-tabs button.on { background: var(--med-accent, var(--med-blue)); }
 ha-card.light .bar .s-white.s-HC, ha-card.light .dv-leg .s-white.s-HC { background: #dbe2ec; }
 @container (max-width: 380px) { .dv-tiles { grid-template-columns: 1fr !important; } }
 </style>`;
@@ -480,7 +480,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .day b { color: var(--med-text); font-size: .78rem; }
 .day .dot { width: 6px; height: 6px; margin-top: 2px; }
 .day.on { background: var(--med-surface); }
-.day:focus-visible { outline: 2px solid var(--med-blue); }
+.day:focus-visible { outline: 2px solid var(--med-accent, var(--med-blue)); }
 
 .detail { margin: 8px 12px 0; padding: 10px 12px; border-radius: 12px; background: var(--med-surface); border: 1px solid var(--med-line); }
 .detail-h { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--med-muted); }
@@ -514,6 +514,9 @@ ha-card.th-ha {
   --med-line: var(--divider-color, rgba(127, 127, 127, .25));
   --med-text: var(--primary-text-color, #1f2937);
   --med-muted: var(--secondary-text-color, #6b7280);
+  /* sélection (onglet actif, tuile choisie, focus) : couleur principale du thème */
+  --med-accent: var(--primary-color, #1d93e3);
+  --med-on-accent: var(--text-primary-color, #fff);
   border-radius: var(--ha-card-border-radius, 12px);
   border: var(--ha-card-border-width, 1px) solid var(--ha-card-border-color, var(--divider-color, #e0e0e0));
 }
