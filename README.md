@@ -36,7 +36,7 @@ Elle a le même style que la [Carte Enedis Linky New](https://github.com/Marlbor
 
 | Style MyElectricalData (sombre) | Clair | Appareils rangés dans leur circuit |
 | --- | --- | --- |
-| ![Aperçu sombre](https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/apercu-sombre.png) | ![Aperçu clair](https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/apercu-clair.png) | ![Imbriqués](https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/imbriques.png) |
+| <img src="https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/apercu-sombre.png" alt="Aperçu sombre" width="300"> | <img src="https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/apercu-clair.png" alt="Aperçu clair" width="300"> | <img src="https://raw.githubusercontent.com/Marlboro62/linky-appareils-card/main/images/imbriques.png" alt="Imbriqués" width="300"> |
 
 ## Ce que la carte affiche
 
