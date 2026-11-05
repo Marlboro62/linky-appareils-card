@@ -28,6 +28,9 @@
 
 # Carte Linky Appareils
 
+[![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz/)
+[![Release](https://img.shields.io/github/v/release/Marlboro62/linky-appareils-card)](https://github.com/Marlboro62/linky-appareils-card/releases)
+
 Carte Lovelace pour Home Assistant qui affiche **ce que coûte chaque circuit et chaque appareil** : aujourd'hui, ce mois et sur le cycle de facturation, avec le poste Tempo en cours, le prix du kWh et la puissance instantanée.
 
 Elle a le même style que la [Carte Enedis Linky New](https://github.com/Marlboro62/content-card-linky-new), mais elle est **indépendante** : elle s'installe à part, avec son propre type `custom:linky-appareils-card`, et ne remplace pas la carte Linky. Les deux peuvent être affichées sur le même tableau de bord.
