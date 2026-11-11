@@ -10,7 +10,7 @@
  */
 
 (() => {
-const CARD_VERSION = "0.2.4-beta.3";
+const CARD_VERSION = "0.2.4-beta.4";
 
 /* ------------------------------------------------------------- affichage */
 
@@ -319,9 +319,13 @@ class LinkyAppareilsCard extends HTMLElement {
         return out;
       }).join("") + (hidden ? `<div class="dv-zero" style="--dv-d:${depth}">+ ${hidden} à 0 € sur la période</div>` : "");
     };
+    let found = false;  // au moins un capteur trouvé, même à 0 €
     const section = (title, list, rest) => {
       const rows = build(list, `${title}:`);
       if (!rows.length) return "";
+      found = true;
+      // tout à 0 € sur la période (et show_zero désactivé) : section masquée plutôt qu'un « 0 € » vide
+      if (!showZero && !rows.some((r) => r.v)) return "";
       const sum = rows.reduce((a, r) => a + (r.v || 0), 0);
       return `<div class="dv-sec">
         <div class="chart-h"><span>${title}</span><span>${euroSmall(sum)}</span></div>
@@ -352,7 +356,7 @@ class LinkyAppareilsCard extends HTMLElement {
       </header>
       ${tiles ? `<div class="tiles dv-tiles">${tiles}</div>` : ""}
       ${split}
-      ${secs ? tabs + secs : `<div class="empty">Aucun capteur de coût trouvé<span>Ajoutez des capteurs sensor.cout_&lt;appareil&gt;_jour / _mois / _cycle, ou listez-les dans circuits: et devices: (voir le README).</span></div>`}
+      ${secs ? tabs + secs : found ? tabs + `<div class="dv-zero" style="--dv-d:0;margin:8px 14px">Tout est à 0 € sur la période.</div>` : `<div class="empty">Aucun capteur de coût trouvé<span>Ajoutez des capteurs sensor.cout_&lt;appareil&gt;_jour / _mois / _cycle, ou listez-les dans circuits: et devices: (voir le README).</span></div>`}
       ${note}
     </ha-card>`;
   }
