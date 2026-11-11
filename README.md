@@ -115,10 +115,24 @@ Une option dont le capteur n'existe pas est simplement masquée.
 | --- | --- | --- |
 | `title` | Titre de la carte | `Coûts par appareil` |
 | `period` | Onglet ouvert au chargement : `jour`, `mois` ou `cycle` | `mois` |
+| `show_header` | Afficher le poste Tempo en cours, le prix du kWh et la puissance (en haut à droite) | `true` |
+| `show_tiles` | Afficher les tuiles Aujourd'hui / Ce mois / Cycle en cours | `true` |
 | `show_split` | Afficher l'énergie du mois par poste Tempo | `true` |
 | `show_zero` | Afficher les appareils à 0 € au lieu de les regrouper | `false` |
 | `expanded` | Groupes (éléments qui contiennent d'autres éléments) dépliés à l'ouverture | `false` |
 | `theme` | `v2` (bleu nuit MyElectricalData), `auto` (clair ou sombre selon HA), `ha` (thème Home Assistant : fond, textes, bordures et couleur de sélection suivent le thème, par exemple l'onglet actif prend la `primary-color`) | `v2` |
+
+**Plusieurs cartes sur la même vue** (par exemple Électroménager, Prises et Éclairages) : l'en-tête, les tuiles et la répartition Tempo concernent tout le logement et sont donc identiques sur chaque carte. Gardez-les sur la première carte et masquez-les sur les autres :
+
+```yaml
+type: custom:linky-appareils-card
+title: Coûts Prises
+show_header: false
+show_tiles: false
+show_split: false
+```
+
+Les onglets **Jour / Mois / Cycle** restent affichés pour changer de période.
 
 Toutes les options sont aussi disponibles dans l'**éditeur visuel**.
 
