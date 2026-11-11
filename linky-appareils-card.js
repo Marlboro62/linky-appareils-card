@@ -10,7 +10,7 @@
  */
 
 (() => {
-const CARD_VERSION = "0.2.4-beta.1";
+const CARD_VERSION = "0.2.4-beta.2";
 
 /* ------------------------------------------------------------- affichage */
 
@@ -78,6 +78,7 @@ const DEV_DEFAULTS = {
   show_header: true,
   show_tiles: true,
   show_split: true,
+  show_tabs: true,
   expanded: false,
   theme: "v2",
 };
@@ -139,7 +140,8 @@ class LinkyAppareilsCard extends HTMLElement {
 
   setConfig(config) {
     this._config = { ...DEV_DEFAULTS, ...(config || {}) };
-    if (!this._tab) this._tab = DEV_PERIODS.some((p) => p.key === this._config.period) ? this._config.period : "mois";
+    // sans onglets, la carte suit toujours la période de la configuration
+    if (!this._tab || this._config.show_tabs === false) this._tab = DEV_PERIODS.some((p) => p.key === this._config.period) ? this._config.period : "mois";
     this._sig = null;
     this._openKey = `linky-appareils-card:${this._config.title}`;
     this._open = store.get(this._openKey) || {};
@@ -331,7 +333,8 @@ class LinkyAppareilsCard extends HTMLElement {
     const rest = energy !== null && lists.circuits.length ? energy - circuitSum : 0;
     const secs = section("Circuits", lists.circuits, rest) + section("Appareils", lists.devices, 0);
 
-    const tabs = `<div class="dv-tabs">${DEV_PERIODS.map((p) => `<button data-tab="${p.key}" class="${p.key === period.key ? "on" : ""}">${p.label}</button>`).join("")}</div>`;
+    // Onglets masqués : la carte reste sur la période choisie (period)
+    const tabs = c.show_tabs === false ? "" : `<div class="dv-tabs">${DEV_PERIODS.map((p) => `<button data-tab="${p.key}" class="${p.key === period.key ? "on" : ""}">${p.label}</button>`).join("")}</div>`;
     const note = lists.circuits.length && lists.devices.length
       ? `<footer>Les appareils sont déjà comptés dans leur circuit : ne pas additionner les deux listes.</footer>`
       : `<div style="height:12px"></div>`;
@@ -613,6 +616,7 @@ const DEV_SCHEMA = [
   { name: "show_tiles", selector: { boolean: {} } },
   { name: "show_split", selector: { boolean: {} } },
   { name: "kwh_prefix", selector: { text: {} } },
+  { name: "show_tabs", selector: { boolean: {} } },
   { name: "show_zero", selector: { boolean: {} } },
   { name: "expanded", selector: { boolean: {} } },
   THEME_SELECT,
@@ -633,6 +637,7 @@ const DEV_LABELS = {
   show_tiles: "Afficher les tuiles Aujourd'hui / Ce mois / Cycle en cours",
   show_split: "Afficher l'énergie du mois par poste Tempo",
   kwh_prefix: "Préfixe des capteurs <couleur>_<hc|hp>_energie_ce_mois",
+  show_tabs: "Afficher les onglets Jour / Mois / Cycle (sinon : période affichée à l'ouverture)",
   show_zero: "Afficher les appareils à 0 €",
   expanded: "Groupes dépliés à l'ouverture (circuits contenant des appareils)",
   theme: "Couleurs de la carte",
