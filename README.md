@@ -118,6 +118,7 @@ Une option dont le capteur n'existe pas est simplement masquée.
 | `show_header` | Afficher le poste Tempo en cours, le prix du kWh et la puissance (en haut à droite) | `true` |
 | `show_tiles` | Afficher les tuiles Aujourd'hui / Ce mois / Cycle en cours | `true` |
 | `show_split` | Afficher l'énergie du mois par poste Tempo | `true` |
+| `show_tabs` | Afficher les onglets **Jour / Mois / Cycle** ; masqués, la carte reste sur la période `period` | `true` |
 | `show_zero` | Afficher les appareils à 0 € au lieu de les regrouper | `false` |
 | `expanded` | Groupes (éléments qui contiennent d'autres éléments) dépliés à l'ouverture | `false` |
 | `theme` | `v2` (bleu nuit MyElectricalData), `auto` (clair ou sombre selon HA), `ha` (thème Home Assistant : fond, textes, bordures et couleur de sélection suivent le thème, par exemple l'onglet actif prend la `primary-color`) | `v2` |
@@ -132,7 +133,7 @@ show_tiles: false
 show_split: false
 ```
 
-Les onglets **Jour / Mois / Cycle** restent affichés pour changer de période.
+Les onglets **Jour / Mois / Cycle** restent affichés pour changer de période. Pour les masquer aussi, ajoutez `show_tabs: false` : la carte reste alors sur la période choisie par `period` (`jour`, `mois` ou `cycle`).
 
 Toutes les options sont aussi disponibles dans l'**éditeur visuel**.
 
