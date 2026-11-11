@@ -10,7 +10,7 @@
  */
 
 (() => {
-const CARD_VERSION = "0.2.3";
+const CARD_VERSION = "0.2.4-beta.1";
 
 /* ------------------------------------------------------------- affichage */
 
@@ -75,6 +75,8 @@ const DEV_DEFAULTS = {
   energy_cycle: "sensor.tempo_cout_energie_cycle_en_cours",
   kwh_prefix: "sensor.tempo_",
   show_zero: false,
+  show_header: true,
+  show_tiles: true,
   show_split: true,
   expanded: false,
   theme: "v2",
@@ -205,8 +207,9 @@ class LinkyAppareilsCard extends HTMLElement {
     const pick = (d, p) => d[p.key] || d[p.alt];
     const all = flatten([...lists.circuits, ...lists.devices]);
     const ids = [
-      c.tarif, c.price, c.power,
-      ...DEV_PERIODS.flatMap((p) => [c[p.total], c[p.energy]]),
+      ...(c.show_header !== false ? [c.tarif, c.price, c.power] : []),
+      ...(c.show_tiles !== false ? DEV_PERIODS.map((p) => c[p.total]) : []),
+      ...DEV_PERIODS.map((p) => c[p.energy]),
       ...(c.show_split !== false ? DEV_POSTES.map((p) => `${c.kwh_prefix}${p.k}_energie_ce_mois`) : []),
       ...all.flatMap((d) => [pick(d, period), d.power]),
     ];
@@ -220,7 +223,8 @@ class LinkyAppareilsCard extends HTMLElement {
     const hchp = /HC/.test(tarif) ? "HC" : /HP/.test(tarif) ? "HP" : "";
     const price = this._num(c.price);
     const pw = this._state(c.power);
-    const pills = [
+    // Plusieurs cartes sur la même vue : show_header / show_tiles / show_split à false évitent de répéter les mêmes infos
+    const pills = c.show_header === false ? "" : [
       color || hchp
         ? `<div class="pill ${color ? TEMPO[color].cls : "t-none"}" data-entity="${esc(c.tarif)}"><span class="dot"></span><span class="pill-l">En cours</span><span class="pill-v">${hchp} ${color ? TEMPO[color].label : ""}</span></div>`
         : "",
@@ -233,7 +237,7 @@ class LinkyAppareilsCard extends HTMLElement {
     ].join("");
 
     // Tuiles : coût total (abonnement compris) et part énergie, par période
-    const tiles = DEV_PERIODS.map((p) => {
+    const tiles = c.show_tiles === false ? "" : DEV_PERIODS.map((p) => {
       const total = this._num(c[p.total]);
       const energy = this._num(c[p.energy]);
       if (total === null && energy === null) return "";
@@ -605,6 +609,8 @@ const DEV_SCHEMA = [
   { name: "energy_day", selector: { entity: { domain: "sensor" } } },
   { name: "energy_month", selector: { entity: { domain: "sensor" } } },
   { name: "energy_cycle", selector: { entity: { domain: "sensor" } } },
+  { name: "show_header", selector: { boolean: {} } },
+  { name: "show_tiles", selector: { boolean: {} } },
   { name: "show_split", selector: { boolean: {} } },
   { name: "kwh_prefix", selector: { text: {} } },
   { name: "show_zero", selector: { boolean: {} } },
@@ -623,6 +629,8 @@ const DEV_LABELS = {
   energy_day: "Coût énergie aujourd'hui",
   energy_month: "Coût énergie du mois",
   energy_cycle: "Coût énergie du cycle",
+  show_header: "Afficher le poste Tempo en cours, le prix du kWh et la puissance",
+  show_tiles: "Afficher les tuiles Aujourd'hui / Ce mois / Cycle en cours",
   show_split: "Afficher l'énergie du mois par poste Tempo",
   kwh_prefix: "Préfixe des capteurs <couleur>_<hc|hp>_energie_ce_mois",
   show_zero: "Afficher les appareils à 0 €",
