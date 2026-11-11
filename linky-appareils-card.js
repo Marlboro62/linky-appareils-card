@@ -10,7 +10,7 @@
  */
 
 (() => {
-const CARD_VERSION = "0.2.4-beta.2";
+const CARD_VERSION = "0.2.4-beta.3";
 
 /* ------------------------------------------------------------- affichage */
 
@@ -79,6 +79,8 @@ const DEV_DEFAULTS = {
   show_tiles: true,
   show_split: true,
   show_tabs: true,
+  show_rest: true,
+  show_note: true,
   expanded: false,
   theme: "v2",
 };
@@ -330,12 +332,13 @@ class LinkyAppareilsCard extends HTMLElement {
     // Un circuit sans capteur qui ne fait que regrouper des appareils compte pour la somme de ses enfants
     const costOf = (d) => { const id = pick(d, period); return id && this._state(id) ? this._num(id) || 0 : kidsOf(d).reduce((a, x) => a + costOf(x), 0); };
     const circuitSum = lists.circuits.reduce((a, d) => a + costOf(d), 0);
-    const rest = energy !== null && lists.circuits.length ? energy - circuitSum : 0;
+    // « Non mesuré » compare le coût du logement aux circuits listés : à masquer sur une carte qui n'en montre qu'une partie
+    const rest = c.show_rest !== false && energy !== null && lists.circuits.length ? energy - circuitSum : 0;
     const secs = section("Circuits", lists.circuits, rest) + section("Appareils", lists.devices, 0);
 
     // Onglets masqués : la carte reste sur la période choisie (period)
     const tabs = c.show_tabs === false ? "" : `<div class="dv-tabs">${DEV_PERIODS.map((p) => `<button data-tab="${p.key}" class="${p.key === period.key ? "on" : ""}">${p.label}</button>`).join("")}</div>`;
-    const note = lists.circuits.length && lists.devices.length
+    const note = c.show_note !== false && lists.circuits.length && lists.devices.length
       ? `<footer>Les appareils sont déjà comptés dans leur circuit : ne pas additionner les deux listes.</footer>`
       : `<div style="height:12px"></div>`;
 
@@ -617,6 +620,8 @@ const DEV_SCHEMA = [
   { name: "show_split", selector: { boolean: {} } },
   { name: "kwh_prefix", selector: { text: {} } },
   { name: "show_tabs", selector: { boolean: {} } },
+  { name: "show_rest", selector: { boolean: {} } },
+  { name: "show_note", selector: { boolean: {} } },
   { name: "show_zero", selector: { boolean: {} } },
   { name: "expanded", selector: { boolean: {} } },
   THEME_SELECT,
@@ -638,6 +643,8 @@ const DEV_LABELS = {
   show_split: "Afficher l'énergie du mois par poste Tempo",
   kwh_prefix: "Préfixe des capteurs <couleur>_<hc|hp>_energie_ce_mois",
   show_tabs: "Afficher les onglets Jour / Mois / Cycle (sinon : période affichée à l'ouverture)",
+  show_rest: "Afficher « Non mesuré par les circuits » (à désactiver si la carte ne liste qu'une partie des circuits)",
+  show_note: "Afficher la phrase « Les appareils sont déjà comptés dans leur circuit… »",
   show_zero: "Afficher les appareils à 0 €",
   expanded: "Groupes dépliés à l'ouverture (circuits contenant des appareils)",
   theme: "Couleurs de la carte",
